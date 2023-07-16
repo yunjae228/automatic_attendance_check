@@ -1,0 +1,25 @@
+{
+  "name": "automatic_attendance_check",
+  "version": "1.0.0",
+  "description": "자동 출석 체크",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yunjae228/automatic_attendance_check.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/web-api": "^6.8.1",
+    "cheerio": "^1.0.0-rc.12",
+    "puppeteer": "^19.7.2"
+  },
+  "bugs": {
+    "url": "https://github.com/yunjae228/automatic_attendance_check/issues"
+  },
+  "homepage": "https://github.com/yunjae228/automatic_attendance_check#readme"
+}
