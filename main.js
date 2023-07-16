@@ -26,20 +26,18 @@ async function login(page, {id, pw, name}) {
     try {
         await delay(1);
         if (await page.$("#login_input")) {
+
             await page.type("#login_input", "unionc.co.kr");
 
-            await delay(1);
             await page.keyboard.press("Enter");
         }
 
         await page.waitForSelector("#cid")
             .then(async () => await page.type("#cid", id)
             );
-        await delay(1);
 
         await page.type("#cpw", pw);
 
-        await delay(1);
         await page.keyboard.press("Enter");
         try {
             await page.waitForSelector('div.profile-detail', {timeout: 5000});
@@ -48,7 +46,6 @@ async function login(page, {id, pw, name}) {
                 page.$eval(`button#nextChangeBtn`, element =>
                     element.click()
                 ),
-                await page.waitForSelector('div.profile-detail', {timeout: 5000}),
             ]);
         }
     } catch (e) {
@@ -59,11 +56,13 @@ async function login(page, {id, pw, name}) {
 
 async function chulseok(page, account) {
     await page.goto('https://m109.mailplug.com/ra/worknote/users/check/');
+
     await page.waitForSelector("div.today-commute > button:nth-child(1)");
-    await delay(4);
+
     const $ = cheerio.load(await page.content());
+
     const check = $('.today-intro').html();
-    console.log(check);
+
     if (check.includes('휴가')) {
         await slackBot.chat.postMessage({
             channel: channel,
@@ -73,30 +72,35 @@ async function chulseok(page, account) {
     }
     ;
     const todayCommuteButton = $('.today-commute').html().split('</button>')[0];
+
     if (todayCommuteButton.includes('commute-button disable')) {
+
         await slackBot.chat.postMessage({
             channel: channel,
             text: `알림 : ${account.name}님은 이미 출석체크 했당 !`
         })
+
         return;
     }
     ;
     await page.click("div.today-commute > button:nth-child(1)");
-    await delay(2);
+
     const $1 = cheerio.load(await page.content());
+
     const huga = $1('.mp-cont').text();
+
     if (huga.includes('휴가 취소')) {
         await slackBot.chat.postMessage({
             channel: channel,
             text: `알림 : ${account.name}님은 휴가중이당 !`
         });
-        await delay(2);
+
         await page.click("div.mp-btn > button:nth-child(2)");
+
         return;
     }
-    ;
     await page.click("div.mp-btn > button:nth-child(1)");
-    await delay(2);
+
     await page.click("div.mp-btn > button:nth-child(1)");
 
     await slackBot.chat.postMessage({
@@ -115,7 +119,7 @@ async function main() {
         return;
     }
     const accountList = process.argv[2] != 'sub' ? ACCOUNTLIST : SUB_ACCOUNTLIST;
-    console.log(accountList);
+
     for (let account of accountList) {
         const browser = await puppeteer.launch({
             headless: false,
