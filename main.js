@@ -47,7 +47,8 @@ async function login(page, {id, pw, name}) {
 
         await page.keyboard.press("Enter");
 
-        // 아이디, 비밀번호 입력 후 비밀번호 변경 창 뜰 경우, 다음에 변경 클릭
+        // 아이디, 비밀번호 입력 후 프로필 상세 페이지 렌더링 될 때까지 대기
+        // 뜨지 않는다면 비밀번호 변경 알림 창이 뜬 경우로 간주하고 다음에 변경 버튼 클릭
         try {
             await page.waitForSelector('div.profile-detail', {timeout: 5000});
         } catch (e) {
