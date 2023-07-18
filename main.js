@@ -18,6 +18,13 @@ const ACCOUNTLIST = [
     {id: process.env.YUNJAE_ID, pw: process.env.YUNJAE_PASSWORD, name: "윤재"}
 ];
 
+async function sendSlackMessage(text) {
+    await slackBot.chat.postMessage({
+        channel,
+        text
+    });
+}
+
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms * 1000));
 }
@@ -39,6 +46,7 @@ async function login(page, {id, pw, name}) {
         await page.type("#cpw", pw);
 
         await page.keyboard.press("Enter");
+
         try {
             await page.waitForSelector('div.profile-detail', {timeout: 5000});
         } catch (e) {
@@ -64,58 +72,34 @@ async function chulseok(page, account) {
     const check = $('.today-intro').html();
 
     if (check.includes('휴가')) {
-        await slackBot.chat.postMessage({
-            channel: channel,
-            text: `알림 : ${account.name}님은 휴가중이당 !`
-        });
+        await sendSlackMessage(`알림 : ${account.name}님은 휴가중이당 !`)
+
         return;
     }
-    ;
+
     const todayCommuteButton = $('.today-commute').html().split('</button>')[0];
 
     if (todayCommuteButton.includes('commute-button disable')) {
 
-        await slackBot.chat.postMessage({
-            channel: channel,
-            text: `알림 : ${account.name}님은 이미 출석체크 했당 !`
-        })
+        await sendSlackMessage(`알림 : ${account.name}님은 이미 출석체크 했당 !`)
 
         return;
     }
     ;
     await page.click("div.today-commute > button:nth-child(1)");
 
-    const $1 = cheerio.load(await page.content());
-
-    const huga = $1('.mp-cont').text();
-
-    if (huga.includes('휴가 취소')) {
-        await slackBot.chat.postMessage({
-            channel: channel,
-            text: `알림 : ${account.name}님은 휴가중이당 !`
-        });
-
-        await page.click("div.mp-btn > button:nth-child(2)");
-
-        return;
+    for (let i = 1; i < 3; i++) {
+        await page.click("div.mp-btn > button:nth-child(1)");
     }
-    await page.click("div.mp-btn > button:nth-child(1)");
 
-    await page.click("div.mp-btn > button:nth-child(1)");
-
-    await slackBot.chat.postMessage({
-        channel: channel,
-        text: `알림 : ${account.name}님 출석체크 성공!`
-    });
+    await sendSlackMessage(`알림 : ${account.name}님 출석체크 성공!`)
 }
 
 async function main() {
     const today = setKST().toISOString().split('T')[0]
     if (gonghuil.includes(today)) {
-        await slackBot.chat.postMessage({
-            channel: channel,
-            text: `알림 : 오늘은 공휴일 ! `
-        });
+        await sendSlackMessage(`알림 : 오늘은 공휴일 ! `)
+
         return;
     }
     const accountList = process.argv[2] != 'sub' ? ACCOUNTLIST : SUB_ACCOUNTLIST;
@@ -130,10 +114,7 @@ async function main() {
             await login(page, account);
             await chulseok(page, account);
         } catch (e) {
-            await slackBot.chat.postMessage({
-                channel: channel,
-                text: `알림 error : ${e}`
-            });
+            await sendSlackMessage(`알림 error : ${e}`)
         } finally {
             await browser.close();
         }
