@@ -34,7 +34,7 @@ async function login(page, {id, pw, name}) {
         await delay(1);
         if (await page.$("#login_input")) {
 
-            await page.type("#login_input", "unionc.co.kr");
+            await page.type("#login_input", process.env.COMPANY_EMAIL);
 
             await page.keyboard.press("Enter");
         }
@@ -47,6 +47,7 @@ async function login(page, {id, pw, name}) {
 
         await page.keyboard.press("Enter");
 
+        // 아이디, 비밀번호 입력 후 비밀번호 변경 창 뜰 경우, 다음에 변경 클릭
         try {
             await page.waitForSelector('div.profile-detail', {timeout: 5000});
         } catch (e) {
